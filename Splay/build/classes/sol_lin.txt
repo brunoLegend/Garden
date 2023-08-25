@@ -1,0 +1,141 @@
+
+
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+
+public class BrunoBaptista_pl3 {
+
+    
+    public static void main(String[] args) {
+        
+        ArrayList<String> seq = new ArrayList<String>();
+        String texto;
+        String output=new String();
+        String[] palavras_linha=new String[10000];
+        Palavra[] p_texto=new Palavra[10000]; 
+        int indice=0;
+        Palavra aux=null;
+        Scanner s= new Scanner(System.in);
+        while(!(texto=s.nextLine()).equals("TCHAU")){
+            String [] texto_aux=texto.trim().split("[ \n]");
+            int i=-1;
+            if(texto_aux[0].equals("TEXTO")){
+                do{
+                    
+                    i++;
+                    seq.add(s.nextLine().trim()); 
+                     palavras_linha=seq.get(i).trim().split("[ ();\n,]"); 
+                     if( palavras_linha[0].equals("FIM.")==false){
+                         for(int p=0; p<palavras_linha.length;p++){ 
+                             if( (p_texto[0]==null ||(aux=verifica(p_texto,palavras_linha[p],indice))==null)){ 
+                                 p_texto[indice]=new Palavra(palavras_linha[p],i); 
+                                 p_texto[indice].indice++;
+                                indice++;
+                            }
+                            else{
+                            
+                                if(procura(aux,i)==0){
+                                   aux.linhas[aux.indice]=i;
+                                   aux.indice++;
+                                }
+                            }
+                        }
+                     }
+                 
+                }while(!seq.get(i).equals("FIM."));
+                
+                
+              
+                output=output+"GUARDADO.\n";
+              
+            }
+            else if (texto_aux[0].equals("LINHAS")){
+                int confirm=0;
+                for(int j=0;j<indice;j++){
+                    if(p_texto[j].nome.toLowerCase().equals(texto_aux[1].toLowerCase())){
+                        confirm=1;
+                     
+                        for(int w=0;w<p_texto[j].indice;w++){
+                            String st=String.valueOf(p_texto[j].linhas[w]);  
+                          
+                            if(w+1==p_texto[j].indice){
+                                output=output+st+"\n";
+                            }
+                            else{
+                            output=output+st+" ";
+                            
+                        }
+                        
+                    }
+                    
+                }
+                }
+                if (confirm==0){ 
+                    output=output+"-1\n";
+                }
+               
+                
+            
+            }
+        
+            
+            else if(texto_aux[0].equals("ASSOC")){
+             
+               Palavra aux2;
+               if(((aux2=verifica(p_texto,texto_aux[1],indice))!=null) && (procura(aux2, Integer.parseInt(texto_aux[2])))==1){
+               
+                   output=output+"ENCONTRADA.\n";
+               }
+               else{
+                 
+                   output=output+"NAO ENCONTRADA.\n";
+               }
+                
+                
+              
+                 }
+            }
+         System.out.print(output);
+    }
+    
+    
+    public static Palavra verifica(Palavra [] palavras,String palavra,int indice){
+     
+        for(int i=0;i<indice;i++){
+            if(palavras[i].nome.toLowerCase().equals(palavra.toLowerCase())){
+                return palavras[i];
+            }
+        }
+        return null;
+       
+    }
+
+    public static int procura(Palavra aux,int linha){
+        for(int i=0;i<aux.indice;i++){
+         
+            if(aux.linhas[i]==linha){
+                return 1;
+            }
+        }
+   
+        return 0;
+    }
+    
+    
+    }
+    
+
+ class Palavra {
+    int []linhas;
+    String nome;
+    int indice;
+    public Palavra(String nome,int linha){
+        this.indice=0;
+        this.linhas=new int[10000];
+        this.linhas[indice]=linha;
+        this.nome=nome;
+    }
+}
+

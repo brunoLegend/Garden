@@ -1,0 +1,306 @@
+
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Avltree {
+
+   static Node root; 
+    int conta_linha=0;
+    int height(Node N) { 
+        if (N == null) 
+            return 0; 
+  
+        return N.height; 
+    } 
+    
+
+    int max(int a, int b) { 
+        if (a>b){
+            return a;
+        }
+        else {
+            return b;
+        }
+    } 
+
+    Node rightRotate(Node y) { 
+        Node x = y.left; 
+        Node T2 = x.right; 
+
+        x.right = y; 
+        y.left = T2; 
+
+        y.height = max(height(y.left), height(y.right)) + 1; 
+        x.height = max(height(x.left), height(x.right)) + 1; 
+
+        return x; 
+    } 
+
+    
+    Node leftRotate(Node x) { 
+        Node y = x.right; 
+        Node T2 = y.left; 
+
+        y.left = x; 
+        x.right = T2; 
+
+        x.height = max(height(x.left), height(x.right)) + 1; 
+        y.height = max(height(y.left), height(y.right)) + 1; 
+
+        return y; 
+    } 
+    
+
+    int getBalance(Node N) { 
+        if (N == null) 
+            return 0; 
+  
+        return height(N.left) - height(N.right); 
+    } 
+    
+    static int verifica_linha(int linha,Node atual){
+        Linhas aux=atual.linhas.head;
+        for(int i=0;i<atual.linhas.getsize();i++){
+            if(aux.data ==linha){ 
+                return 1;
+            }
+            aux=aux.next;
+        }
+        return 0;
+    }
+    
+        Node insert(Node node, String key,int linha) { 
+
+        if (node == null){ 
+
+            return (new Node(key,linha)); 
+        }
+
+        if (key.compareTo(node.key)>0){ 
+               
+                node.right = insert(node.right, key,linha);
+
+      }
+        else if (key.compareTo(node.key)<0){ 
+               
+                node.left = insert(node.left, key,linha); 
+        }
+                
+         
+         
+        else{ 
+            if(verifica_linha(linha,node)==0){
+                node.linhas.insert(linha);
+            }
+            return node; 
+        }
+       
+        node.height = 1 + max(height(node.left),height(node.right)); 
+
+        int balance = getBalance(node); 
+  
+        if (balance > 1 && key.compareTo(node.left.key)<0) 
+            return rightRotate(node); 
+  
+        if (balance < -1 && key.compareTo(node.right.key)>0) 
+            return leftRotate(node); 
+  
+        if (balance > 1 && key.compareTo(node.left.key)>0) { 
+            node.left = leftRotate(node.left); 
+            return rightRotate(node); 
+        } 
+  
+        
+        if (balance < -1 && key.compareTo(node.right.key)<0) { 
+            node.right = rightRotate(node.right); 
+            return leftRotate(node); 
+        } 
+
+        return node; 
+    } 
+    
+        
+        
+        
+        
+    static Node find(String key) {
+        Node current = root;
+        while (current != null) {
+            if (key.toLowerCase().equals(current.key)) {
+                break;
+            }
+            else if(key.toLowerCase().compareTo(current.key)<0){
+                current=current.left;
+            }
+            else{
+                current=current.right;
+            }
+          
+        }
+    return current;
+}
+      
+      
+       static void preOrder(Node node) { 
+        
+        if (node != null) { 
+            Linhas aux=node.linhas.head;
+            while(aux!=null){
+                aux=aux.next;
+            }
+            preOrder(node.left); 
+            preOrder(node.right); 
+        } 
+    }
+    
+    
+    public static void main(String[] args) {
+       Avltree tree = new Avltree(); 
+       ArrayList<String> seq = new ArrayList<String>();
+        String output = new String();
+        String texto;
+        int conta=0;
+        Scanner s= new Scanner(System.in);
+        while(!(texto=s.nextLine()).equals("TCHAU")){
+            String [] texto_aux=texto.trim().split("[ \n]");
+            int i=-1;
+            if(texto_aux[0].equals("TEXTO")){ 
+                conta=1;
+                do{
+                    i++; 
+                    seq.add(s.nextLine().trim()); 
+                    String[] seq_aux=seq.get(i).trim().split("[ ();\n,.]"); 
+                    if(!seq_aux[0].equals("FIM")){
+                     for (int w=0;w<seq_aux.length;w++){
+                        tree.root=tree.insert(tree.root,seq_aux[w].toLowerCase(),i);
+ 
+                     }
+                    }
+                }while(!seq.get(i).equals("FIM."));
+                output=output+"GUARDADO.\n";
+
+            }
+                
+            else if (texto_aux[0].equals("LINHAS") && conta==1){
+               
+                Node word=find(texto_aux[1]);
+                
+                if(word!=null){
+                    Linhas aux=word.linhas.head;
+                    while(aux!=null){
+                        if(aux.next!=null){
+                            output=output+aux.data+" ";
+                        }
+                        else{
+                             output=output+aux.data+"\n";
+                        }
+                        aux=aux.next;
+                    }
+                }
+                else{
+                    output=output+"-1\n";
+                }
+            }    
+            else if(texto_aux[0].equals("ASSOC")&& conta==1){
+                Node atual=find(texto_aux[1]);
+                if(atual != null && verifica_linha(Integer.parseInt(texto_aux[2]),atual)==1){
+       
+                    output=output+"ENCONTRADA.\n";
+                }
+                else{
+                    output=output+"NAO ENCONTRADA.\n";
+                }
+            }
+
+        }
+        System.out.print(output);
+    }
+    
+   
+}
+
+ class Node {
+    String key;
+    int height;
+    LinkedList linhas;
+    
+    Node left, right; 
+  
+    Node(String d, int linha) { 
+        this.linhas = new LinkedList();
+        this.linhas.insert(linha);
+        key = d; 
+        height = 1; 
+    } 
+} 
+
+ class LinkedList { 
+  
+    Linhas head;
+    
+    public void insert(int data) 
+    { 
+
+        Linhas new_node = new Linhas(data); 
+        new_node.next = null; 
+
+        if (this.head == null) { 
+            this.head = new_node; 
+        } 
+        else { 
+
+            Linhas last = this.head; 
+            while (last.next != null) { 
+                last = last.next; 
+            } 
+
+            last.next = new_node; 
+        } 
+
+   
+    }
+       
+       
+       public  void printList() 
+    { 
+        Linhas currNode = this.head; 
+        while (currNode != null) { 
+            currNode = currNode.next; 
+        } 
+    } 
+       
+     public int getsize(){
+         Linhas curr=this.head;
+         int tam=0;
+         while(curr!=null){
+             tam++;
+             curr=curr.next;
+         }
+         return tam;
+     }  
+    
+ }
+     class Linhas { 
+  
+        int data; 
+        Linhas next; 
+
+        Linhas(int d) 
+        { 
+            data = d; 
+            next = null; 
+        }
+        
+    } 
+    
+       
+ 
+    
+    
+    
+    
+    
+    
+    
+
